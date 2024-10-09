@@ -9,9 +9,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <Version>2.0.0.0</Version>
-    <FileVersion>2.0.0.0</FileVersion>
-    <InformationalVersion>2.0.0.0</InformationalVersion>
+	<SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+	<PublishTrimmed>true</PublishTrimmed>
+	<TrimMode>link</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,6 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.0-rc1" />
 	<!-- The next version contains an native overlay https://code.videolan.org/videolan/LibVLCSharp/-/commit/85e24c048b7fa2b2723b850280d29c624705e544#12fb2b2c4c28c5b9f47755378aed63f8648d2897_95_188-->
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.8.2" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$(Configuration)' == 'Debug'" Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.0-rc1" />
   </ItemGroup>
