@@ -1,0 +1,464 @@
+﻿<Window x:Class="ScreenPresent.Views.SettingsWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ScreenPresent.Views"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:converters="clr-namespace:ScreenPresent.Converters"
+		xmlns:viewmodels="using:ScreenPresent.ViewModels"
+		xmlns:generic="using:System.Collections.Generic"
+		xmlns:platform="using:Avalonia.Platform"
+		mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="WidthAndHeight"
+        Title="Einstellungen"
+        CanResize="False"
+        Icon="/Assets/icon.ico"
+		x:DataType="viewmodels:SettingsViewModel">
+
+  <Window.Resources>
+    <converters:InverseBooleanConverter x:Key="InverseBool" />
+	  <converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+  </Window.Resources>
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="auto" />
+      <RowDefinition Height="auto" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="auto" />
+    </Grid.ColumnDefinitions>
+    <TabControl
+        Grid.Row="0"
+        Grid.Column="0"
+        Grid.ColumnSpan="3">
+      <TabItem Header="Fenster">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" MinWidth="150" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+          </Grid.RowDefinitions>
+			<!-- Theme -->
+			<Label
+				Grid.Column="0"
+				Grid.Row="0"
+				VerticalAlignment="Center"
+				Content="Theme" />
+			<ComboBox
+				Grid.Column="1"
+				Grid.Row="0"
+				Margin="5"
+				ItemsSource="{Binding Themes}"
+				SelectedItem="{Binding Theme}">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding, Converter={StaticResource EnumDescriptionConverter}}" />
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+			
+          <!-- The monitor to display the image window -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="1"
+              VerticalAlignment="Center"
+              Content="Bildschirm" />
+			<ComboBox
+				Grid.Column="1"
+				Grid.Row="1"
+				Margin="5"
+				ItemsSource="{Binding Monitors}"
+				SelectedItem="{Binding SelectedMonitore}">
+				<ComboBox.ItemTemplate>
+					<DataTemplate>
+						<DataTemplate.DataType>
+							<x:Type TypeName="generic:KeyValuePair" x:TypeArguments="x:String, platform:Screen"/>
+						</DataTemplate.DataType>
+						<TextBlock Text="{Binding Key}" />
+					</DataTemplate>
+				</ComboBox.ItemTemplate>
+			</ComboBox>
+          <!--DisplayMemberPath="DeviceName"-->
+
+          <!-- Height of the image window -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="2"
+              VerticalAlignment="Center"
+              Content="Vollbildmodus" />
+          <ToggleSwitch
+              Grid.Row="2"
+              Grid.Column="1"
+              x:Name="ToggleFullScreeen"
+              Margin="5"
+              OnContent="Vollbildmodus nutzen"
+              OffContent="Pixel selber festlegen"
+              VerticalAlignment="Center"
+              MinWidth="50"
+              IsChecked="{Binding FullScreen}" />
+
+          <!-- Height of the image window -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="3"
+              IsVisible="{Binding FullScreen, Converter={StaticResource InverseBool}}"
+              VerticalAlignment="Center"
+              Content="Höhe" />
+          <NumericUpDown
+              Grid.Row="3"
+              Grid.Column="1"
+              IsVisible="{Binding FullScreen, Converter={StaticResource InverseBool}}"
+              Margin="5"
+              Minimum="10"
+              VerticalAlignment="Center"
+              MinWidth="50"
+              Value="{Binding Height}" />
+
+          <!-- Width of the image window -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="4"
+              IsVisible="{Binding FullScreen, Converter={StaticResource InverseBool}}"
+              VerticalAlignment="Center"
+              Content="Breite" />
+          <NumericUpDown
+              Grid.Column="1"
+              Grid.Row="4"
+              IsVisible="{Binding FullScreen, Converter={StaticResource InverseBool}}"
+              Minimum="10"
+              Margin="5"
+              VerticalAlignment="Center"
+              MinWidth="50"
+              Value="{Binding Width}" />
+          <!-- TopMost -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="5"
+              VerticalAlignment="Center"
+              Content="Immer im Vordergrund"/>
+          <CheckBox
+              Grid.Column="1"
+              Grid.Row="5"
+              Margin="5"
+              IsChecked="{Binding TopMost}" />
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Diashow">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" MinWidth="150" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+          </Grid.RowDefinitions>
+
+          <Label
+              Grid.Column="0"
+              Grid.Row="0"
+              VerticalAlignment="Center"
+              Content="Wiedergabe der Ordner" />
+          <ToggleSwitch
+              Grid.Column="1"
+              Grid.Row="0"
+              OnContent="Zufällig"
+              OffContent="Geordnet"
+              IsChecked="{Binding OrderFoldersRandom}" />
+
+          <Label
+              Grid.Column="0"
+              Grid.Row="1"
+              VerticalAlignment="Center"
+              Content="Start der Widergabe" />
+          <ToggleSwitch
+              Grid.Column="1"
+              Grid.Row="1"
+              OnContent="Beim Start der Anwendung"
+              OffContent="Wiedergabe manuell starten"
+              IsChecked="{Binding StartDiashowAtProgramStart}" />
+        </Grid>
+      </TabItem>
+
+      <TabItem Header="Newsticker">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" MinWidth="150" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+          </Grid.RowDefinitions>
+
+          <Label
+              Grid.Column="0"
+              Grid.Row="0"
+              VerticalAlignment="Center"
+              Content="Newsticker aktiviert" />
+          <CheckBox
+              Grid.Column="1"
+              Grid.Row="0"
+              VerticalAlignment="Center"
+              IsChecked="{Binding ShowNewsticker}" />
+
+          <!-- Font size of the newsticker -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="1"
+              VerticalAlignment="Center"
+              Content="Newsticker-Schriftgröße" />
+          <Grid
+              Grid.Column="1"
+              Grid.Row="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="auto" />
+              <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <Button
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Padding="10,0,10,0"
+                Margin="5"
+                Content="-"
+                Command="{Binding NewstickerSmallerCommand}"/>
+            <Slider
+                Grid.Column="1"
+                Margin="5"
+                Minimum="1"
+                Value="{Binding BannerFontSize}"
+                Maximum="100"
+                MinWidth="100"/>
+            <Button
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Padding="10,0,10,0"
+                Margin="5"
+                Content="+"
+                Command="{Binding NewstickerLargerCommand}" />
+            <Label
+                Grid.Column="3"
+                VerticalAlignment="Center"
+                Content="{Binding BannerFontSizeText}" />
+          </Grid>
+
+          <!-- Tempo of the newsticker -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="2"
+              VerticalAlignment="Center"
+              Content="Newsticker-Geschwindigkeit" />
+          <Grid
+              Grid.Column="5"
+              Grid.Row="2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <Button
+                Grid.Column="0"
+                VerticalAlignment="Center"
+                Padding="10,0,10,0"
+                Margin="5"
+                Content="-"
+                Command="{Binding NewstickerSlowerCommand}"/>
+            <Slider
+                Grid.Column="1"
+                Margin="5"
+                Minimum="1"
+                Maximum="100"
+                Value="{Binding BannerSpeed}"
+                MinWidth="100"/>
+            <Button
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Padding="10,0,10,0"
+                Margin="5"
+                Content="+"
+                Command="{Binding NewstickerFasterCommand}"/>
+          </Grid>
+
+          <!-- Path to the newsticker -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="3"
+              VerticalAlignment="Center"
+              Content="Pfad zum Newsticker" />
+          <Grid
+              Grid.Column="1"
+              Grid.Row="3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox
+                Grid.Column="0"
+                Margin="5"
+                Text="{Binding BannerPath}"/>
+            <Button
+                Grid.Column="1"
+                Margin="5"
+                Padding="10,0,10,0"
+                Content="..."
+                Click="OnBtnSelectBannerPathClick" />
+          </Grid>
+          <Label
+              Grid.Column="0"
+              Grid.Row="5"
+              VerticalAlignment="Center"
+              Content="FPS (Bilder pro Sekunde)" />
+          <NumericUpDown
+              Grid.Column="1"
+              Grid.Row="5"
+              Margin="5"
+              Minimum="100"
+              Maximum="400"
+              Value="{Binding NewstickerFrames}" />
+        </Grid>
+      </TabItem>
+
+      <TabItem
+          Header="Wetter">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="*" MinWidth="150" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+          </Grid.RowDefinitions>
+
+          <!-- ShowWeather -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="0"
+              Content="Wetter aktiviert" />
+          <CheckBox
+              Grid.Column="1"
+              Grid.Row="0"
+              Margin="5"
+              IsChecked="{Binding ShowWeather}" />
+
+          <!-- WeatherDuration -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="1"
+              VerticalAlignment="Center"
+              Content="Anzeigedauer in Sekunden" />
+          <NumericUpDown
+              Grid.Column="1"
+              Grid.Row="1"
+              Margin="5"
+              Minimum="10"
+              Maximum="60"
+              Value="{Binding WeatherDuration}" />
+
+          <!-- Count of the days -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="2"
+              VerticalAlignment="Center"
+              Content="Anzahl der sichtbaren Tage" />
+          <NumericUpDown
+              Grid.Column="1"
+              Grid.Row="2"
+              Margin="5"
+              Minimum="1"
+              Value="{Binding VisibleDays}"
+              Maximum="5" />
+
+          <!--- Letter Size of the weather place -->
+          <Label
+              Grid.Column="0"
+              Grid.Row="3"
+              VerticalAlignment="Center"
+              Content="Schriftgöße Ort" />
+          <NumericUpDown
+              Grid.Column="1"
+              Grid.Row="3"
+              Minimum="10"
+              Maximum="30"
+              Margin="5"
+              Value="{Binding PlaceLetterSize}" />
+
+          <!-- Show only the weather -->
+          <Label
+              Grid.Row="4"
+              Grid.Column="0"
+              VerticalAlignment="Center"
+              Content="Nur Wetter anzeigen" />
+          <ToggleSwitch
+              Grid.Row="4"
+              Grid.Column="1"
+              OnContent="Ja"
+              OffContent="Nein"
+              IsChecked="{Binding ShowOnlyWeather}"/>
+
+          <Label
+              Grid.Row="5"
+              Grid.Column="0"
+              VerticalAlignment="Center"
+              Content="API-Key" />
+          <TextBox
+              Grid.Row="5"
+              Grid.Column="1"
+              Margin="5"
+              Text="{Binding WeatherApiKey}" />
+
+          <Label
+              Grid.Row="6"
+              Grid.Column="0"
+              VerticalAlignment="Center"
+              Content="Ort" />
+          <TextBox
+              Grid.Row="6"
+              Grid.Column="1"
+              Margin="5"
+              Text="{Binding WeatherLocation}" />
+
+			<StackPanel Grid.Row="7" Orientation="Horizontal">
+				<HyperlinkButton Padding="0" Click="BtnOpenLink_Click" Tag="https://openweathermap.org/">
+					Hier
+				</HyperlinkButton>
+
+				<TextBlock Margin="5">
+					findet sich ein Link zu der verwendeten API.
+				</TextBlock>
+			</StackPanel>
+		</Grid>
+      </TabItem>
+    </TabControl>
+    <Button
+        Grid.Row="1"
+        Grid.Column="1"
+        Content="Schließen"
+        Margin="5"
+        IsCancel="True"
+        Click="OnBtnCloseClick" />
+  </Grid>
+</Window>

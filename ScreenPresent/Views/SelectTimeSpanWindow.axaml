@@ -1,0 +1,131 @@
+﻿<Window
+    x:Class="ScreenPresent.Views.SelectTimeSpanWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:ScreenPresent.Views"
+    xmlns:converters="clr-namespace:ScreenPresent.Converters"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+	xmlns:viewmodels="using:ScreenPresent.ViewModels"
+	xmlns:classes="using:ScreenPresent.Classes"
+	mc:Ignorable="d"
+    WindowStartupLocation="CenterOwner"
+    SizeToContent="WidthAndHeight"
+    Title="Zeitraum auswahl"
+    CanResize="False"
+	x:DataType="viewmodels:SelectTimeSpanViewModel">
+
+	<Window.Resources>
+		<converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+	</Window.Resources>
+
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="auto" />
+			<ColumnDefinition Width="*" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+		</Grid.RowDefinitions>
+
+		<Label
+			Grid.Column="0"
+			Grid.Row="0"
+			Content="Sichtbarkeit"
+			Margin="5"
+			VerticalAlignment="Center" />
+		<ComboBox
+				Grid.Column="1"
+				Grid.Row="0"
+				ItemsSource="{Binding TimeTypes}"
+				SelectedItem="{Binding SelectedTimeType}"
+				Margin="5">
+			<ComboBox.ItemTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding, Converter={StaticResource EnumDescriptionConverter}}" />
+				</DataTemplate>
+			</ComboBox.ItemTemplate>
+		</ComboBox>
+
+		<ListBox
+			d:IsHidden="True"
+			Grid.Column="0"
+			Grid.Row="1"
+			Grid.ColumnSpan="2"
+			IsVisible="{Binding IsWeekly}"
+			ItemsSource="{Binding Days}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<DataTemplate.DataType>
+						<x:Type TypeName="classes:Day" />
+					</DataTemplate.DataType>
+					
+					<StackPanel Orientation="Horizontal">
+						<CheckBox IsChecked="{Binding IsChecked}" />
+						<Label Content="{Binding Value}" VerticalAlignment="Center" />
+					</StackPanel>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+
+		<StackPanel
+			d:IsHidden="True"
+			Grid.Column="0"
+			Grid.Row="1"
+			Grid.ColumnSpan="2"
+			IsVisible="{Binding IsYearly}">
+
+			<DatePicker Margin="5" SelectedDate="{Binding DateStart}" />
+			<DatePicker Margin="5" SelectedDate="{Binding DateEnd}" />
+		</StackPanel>
+
+		<Grid
+			Grid.Row="2"
+			Grid.Column="0"
+			Grid.ColumnSpan="2"
+			IsVisible="{Binding ShowCheckbox}">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="auto" />
+				<RowDefinition Height="auto" />
+			</Grid.RowDefinitions>
+			<CheckBox
+				Grid.Row="0"
+				Margin="5"
+				Content="{Binding ShowEveryIntervalText}"
+				IsChecked="{Binding ShowEveryInterval}" />
+			<CheckBox
+				Grid.Row="1"
+				Margin="5"
+				Content="Nach der Anzeige löschen"
+				IsEnabled="{Binding CanDeleteAfterInterval}"
+				IsChecked="{Binding DeleteAfterInterval}" />
+		</Grid>
+
+		<TextBlock Grid.Row="3"
+				   Grid.ColumnSpan="2"
+				   Foreground="Red" 
+				   Text="{Binding ErrorText}" />
+
+		<Grid
+			Grid.Row="4"
+			Grid.Column="0"
+			Grid.ColumnSpan="2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+			<Button
+				Grid.Column="1"
+				Content="OK"
+				Margin="5"
+				Padding="10,5,10,5"
+				Command="{Binding AcceptCommand}"
+				IsDefault="True" />
+		</Grid>
+	</Grid>
+</Window>

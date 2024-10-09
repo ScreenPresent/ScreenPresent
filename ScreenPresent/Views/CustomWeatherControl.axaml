@@ -1,0 +1,109 @@
+﻿<UserControl x:Class="ScreenPresent.Views.CustomWeatherControl"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:ScreenPresent.Views"
+             xmlns:converters="clr-namespace:ScreenPresent.Converters"
+			 xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+			 xmlns:viewmodels="using:ScreenPresent.ViewModels"
+             mc:Ignorable="d"
+             x:Name="Root"
+             Background="Black"
+			 x:DataType="viewmodels:ImageViewModel">
+
+	<Control.Resources>
+		<converters:WeatherIconConverter x:Key="WeatherIconConverter" />
+		<converters:TemperatureConverter x:Key="TemperatureConverter" />
+		<converters:WeekdayConverter x:Key="WeekdayConverter" />
+	</Control.Resources>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="5*" />
+			<RowDefinition Height="20*" />
+			<RowDefinition Height="20*" />
+			<RowDefinition Height="5*" />
+		</Grid.RowDefinitions>
+		<Label
+            Grid.Row="1"
+            Foreground="White"
+            VerticalContentAlignment="Bottom"
+            HorizontalAlignment="Center"
+            Content="{Binding Weather.CityName}"
+            FontSize="{Binding Settings.PlaceLetterSize}" />
+
+		<ListBox
+            Grid.Row="2"
+            Grid.ColumnSpan="2"
+            ItemsSource="{Binding Weather.DailyWeather}"
+            Background="Black">
+			<ListBox.ItemsPanel>
+				<ItemsPanelTemplate>
+					<StackPanel Orientation="Horizontal" />
+				</ItemsPanelTemplate>
+			</ListBox.ItemsPanel>
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="auto" />
+							<RowDefinition Height="auto" />
+							<RowDefinition Height="auto" />
+							<RowDefinition Height="auto" />
+						</Grid.RowDefinitions>
+						<Image
+                            Grid.Row="0"
+                            Margin="5"
+                            VerticalAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            asyncImageLoader:ImageLoader.Source="{Binding IconId, Converter={StaticResource WeatherIconConverter}}" />
+						<Grid
+                            HorizontalAlignment="Center"
+                            Grid.Row="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="auto" />
+								<ColumnDefinition Width="auto" />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="auto" />
+								<RowDefinition Height="auto" />
+								<RowDefinition Height="5" />
+								<RowDefinition Height="auto" />
+							</Grid.RowDefinitions>
+							<TextBlock
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                Foreground="White"
+                                Text="Min: "/>
+							<TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Foreground="White"
+                                Text="{Binding Min, Converter={StaticResource TemperatureConverter}}"/>
+
+							<TextBlock
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Foreground="White"
+                                Text="Max: "/>
+							<TextBlock
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Foreground="White"
+                                Text="{Binding Max, Converter={StaticResource TemperatureConverter}}"/>
+
+							<TextBlock
+                                Grid.Row="3"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="2"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                Text="{Binding WeekDay, Converter={StaticResource WeekdayConverter}}"/>
+						</Grid>
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</Grid>
+</UserControl>

@@ -1,0 +1,262 @@
+﻿<Window x:Class="ScreenPresent.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:ScreenPresent"
+    xmlns:system="clr-namespace:System"
+    xmlns:views="clr-namespace:ScreenPresent.Views"
+    xmlns:viewModel="clr-namespace:ScreenPresent.ViewModels"
+    xmlns:converters="clr-namespace:ScreenPresent.Converters"
+	xmlns:viewmodels="using:ScreenPresent.ViewModels"
+    mc:Ignorable="d"
+    WindowStartupLocation="CenterScreen"
+    Title="Screen Present" Height="675" Width="1650"
+    Icon="/Assets/icon.ico"
+	x:DataType="viewmodels:MainViewModel">
+
+	<Window.Resources>
+		<!--<CollectionViewSource x:Key="PlayTypes" Source="{Binding PlayTypes}"/>-->
+		<converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
+	</Window.Resources>
+
+	<Grid
+        Margin="5">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="auto" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="auto" />
+		</Grid.RowDefinitions>
+		<Grid
+            Grid.Column="0"
+            Grid.Row="0"
+            Grid.ColumnSpan="2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+
+			<Label
+                Grid.Column="0"
+                Grid.Row="0"
+                Margin="5"
+                VerticalAlignment="Center"
+                Content="Suche" />
+			<TextBox
+                Grid.Column="1"
+                Grid.Row="0"
+                Margin="5"
+                Text="{Binding SearchText}" />
+		</Grid>
+
+		<DataGrid
+            Grid.Column="0"
+            Grid.Row="1"
+            ItemsSource="{Binding DisplayPaths}"
+            SelectedItem="{Binding SelectedPath}"
+            AutoGenerateColumns="False"
+            HeadersVisibility="All"
+            RowHeaderWidth="30"
+            LoadingRow="DataGrid_LoadingRow">
+			<DataGrid.Columns>
+				<DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+				<DataGridTemplateColumn Width="*" Header="Pfad">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="auto" />
+								</Grid.ColumnDefinitions>
+								<TextBox
+                                    Grid.Column="0"
+                                    Margin="5"
+                                    IsReadOnly="True"
+                                    Text="{Binding Directory}"/>
+								<Button
+                                    Grid.Column="1"
+                                    Margin="5"
+                                    Padding="10,0,10,0"
+                                    Content="..."
+                                    Command="{Binding SelectPathCommand}" />
+							</Grid>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+
+				<DataGridTemplateColumn Header="Dauer">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding Duration, StringFormat='{}{0} Sekunden'}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+					<DataGridTemplateColumn.CellEditingTemplate>
+						<DataTemplate>
+							<NumericUpDown Value="{Binding Duration}" FormatString="N0" HorizontalAlignment="Stretch" Minimum="5" Maximum="300"  />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellEditingTemplate>
+				</DataGridTemplateColumn>
+
+				<DataGridCheckBoxColumn Header="Hat Priorität" Binding="{Binding HasPrio}" />
+				<DataGridCheckBoxColumn Header="Dateien stretchen" Binding="{Binding Stretch}" />
+				<DataGridCheckBoxColumn Header="Videos in voller Länge" Binding="{Binding VideosFullLength}" />
+
+				<DataGridTemplateColumn Header="Wiedergabe">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding PlayType, Converter={StaticResource EnumDescriptionConverter}}" VerticalAlignment="Center" />
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+					<DataGridTemplateColumn.CellEditingTemplate>
+						<DataTemplate>
+							<ComboBox ItemsSource="{x:Static viewModel:StaticPlayTypes.PlayTypes}" SelectedItem="{Binding PlayType}" VerticalAlignment="Center" >
+								<ComboBox.ItemTemplate>
+									<DataTemplate>
+										<TextBlock Text="{Binding, Converter={StaticResource EnumDescriptionConverter}}" />
+									</DataTemplate>
+								</ComboBox.ItemTemplate>
+							</ComboBox>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellEditingTemplate>
+				</DataGridTemplateColumn>
+
+				<DataGridTemplateColumn Header="Zeitraum">
+					<DataGridTemplateColumn.CellTemplate>
+						<DataTemplate>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="auto" />
+								</Grid.ColumnDefinitions>
+								<Label
+                                    VerticalAlignment="Center"
+                                    Grid.Column="0"
+                                    Content="{Binding TimeSpan}" />
+								<Button
+                                    Content="..."
+                                    Margin="5"
+                                    Grid.Column="1"
+                                    Padding="10,0,10,0"
+                                    Command="{Binding SelectTimeSpanCommand}" />
+							</Grid>
+						</DataTemplate>
+					</DataGridTemplateColumn.CellTemplate>
+				</DataGridTemplateColumn>
+			</DataGrid.Columns>
+		</DataGrid>
+
+		<Grid
+            Grid.Column="1"
+            Grid.Row="1">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="auto" />
+				<RowDefinition Height="auto" />
+				<RowDefinition Height="auto" />
+				<RowDefinition Height="auto" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<Button
+                Grid.Row="0"
+                Margin="5"
+                Command="{Binding AddPathCommand}">
+				<Image
+                    Source="/Assets/add_black.png"
+                    Height="30" />
+			</Button>
+			<Button
+                Grid.Row="1"
+                Margin="5"
+                Command="{Binding RemovePathCommand}">
+				<Image
+                    Source="/Assets/remove_black.png"
+                    Height="30" />
+			</Button>
+			<Button
+                Grid.Row="2"
+                Margin="5"
+                Command="{Binding PathUpCommand}">
+				<Image
+                    Source="/Assets/arrow_upward_black.png"
+                    Height="30" />
+			</Button>
+			<Button
+                Grid.Row="3"
+                Margin="5"
+                Command="{Binding PathDownCommand}">
+				<Image
+                    Source="/Assets/arrow_downward_black.png"
+                    Height="30" />
+			</Button>
+		</Grid>
+		<Separator
+            Grid.Row="3" />
+		<Grid
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Grid.Row="4">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
+			</Grid.ColumnDefinitions>
+			<TextBlock Grid.Column="0"
+					   IsVisible="{Binding Settings.HasLibVlcError}"
+					   Foreground="Red"
+					   Margin="5"
+					   Padding="10,5,10,5"
+					   Text="Es können keine Videos angezeigt werden, da Lib-VLC nicht vorhanden ist." />
+			<Button
+                Grid.Column="1"
+                Margin="5"
+                Padding="10,5,10,5"
+                Content="Zurück"
+                Command="{Binding DiashowBackCommand}"
+                IsEnabled="{Binding CanDiashowBack}"/>
+			<Button
+                Grid.Column="2"
+                Margin="5"
+                Padding="10,5,10,5"
+                Content="Weiter"
+                Command="{Binding DiashowNextCommand}"
+                IsEnabled="{Binding CanDiashowNext}"/>
+			<Button
+                Grid.Column="3"
+                Margin="5"
+                Padding="10,5,10,5"
+                Content="{Binding DiashowPauseText}"
+                Command="{Binding DiashowPauseCommand}"
+                IsEnabled="{Binding CanDiashowPause}"/>
+			<Button
+                Grid.Column="4"
+                Margin="5"
+                Padding="10,5,10,5"
+                Content="Diashow einmal durchlaufen"
+                Command="{Binding DiashowStartCommand}"
+                CommandParameter="False"
+                IsVisible="{Binding CanDiashowStart}"/>
+			<Button
+                Grid.Column="5"
+                Margin="5"
+                Padding="10,5,10,5"
+                Content="{Binding DiashowStartText}"
+                Command="{Binding DiashowStartCommand}"
+                CommandParameter="True" />
+			<Button
+                Grid.Column="6"
+                Margin="5"
+                Padding="10,5,10,5"
+                Content="Einstellungen"
+                Click="OnBtnSettingsClick" />
+		</Grid>
+	</Grid>
+</Window>
