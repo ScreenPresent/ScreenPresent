@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using static ScreenPresent.Classes.Version;
 
 namespace ScreenPresent.Classes;
 
@@ -6,6 +8,7 @@ namespace ScreenPresent.Classes;
 [JsonSerializable(typeof(JsonFile))]
 [JsonSerializable(typeof(WeatherOneCallApiResult))]
 [JsonSerializable(typeof(WeatherApiResult))]
+[JsonSerializable(typeof(List<Versions>))]
 public partial class JsonContext : JsonSerializerContext
 {
 }

@@ -4,7 +4,9 @@ using ScreenPresent.Classes;
 using ScreenPresent.Services.OpenWeatherService;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
 
@@ -18,6 +20,22 @@ public class MainViewModel : ReactiveObject
         get => Paths.FindAll(path => path.Name?.Contains(SearchText ?? string.Empty, StringComparison.OrdinalIgnoreCase) ?? false);
         set => Paths = value;
     }
+
+    private string? _updateText;
+    public string? UpdateText
+    {
+        get => _updateText;
+        set
+        {
+            if (_updateText != value)
+            {
+                _updateText = value;
+                this.RaisePropertyChanged(nameof(UpdateText));
+                this.RaisePropertyChanged(nameof(MayUpdate));
+            }
+        }
+    }
+    public bool MayUpdate => !string.IsNullOrEmpty(UpdateText);
 
     public Views.ImageWindow ImageWindow { get; set; }
     public SettingsViewModel Settings { get; set; }
@@ -76,7 +94,8 @@ public class MainViewModel : ReactiveObject
         }
     }
 
-    private readonly Timer NextImageTimer = new(1000);
+    private readonly System.Timers.Timer NextImageTimer = new(1000);
+    private readonly string? _updaterPath;
     public MainViewModel(SettingsViewModel settings)
     {
         NextImageTimer.Elapsed += StartTimer;
@@ -99,6 +118,18 @@ public class MainViewModel : ReactiveObject
         if (Settings.StartDiashowAtProgramStart)
         {
             StartPresentation(true);
+        }
+
+        CheckForUpdatesAsync();
+    }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        string? newestVersion = await Classes.Version.GetNewestVersionStringAsync();
+
+        if (!string.IsNullOrWhiteSpace(newestVersion) && newestVersion != Classes.Version.GetCurrentVersion())
+        {
+            UpdateText = string.IsNullOrEmpty(newestVersion) ? null : $"Es ist ein Update auf Version {newestVersion} verfügbar.";
         }
     }
 
@@ -393,6 +424,32 @@ public class MainViewModel : ReactiveObject
             NextImageTimer.Stop();
         }
         DiashowPaused = !DiashowPaused;
+    }
+    #endregion
+
+    #region Update
+    private ICommand? _updateCommand;
+    public ICommand UpdateCommand => _updateCommand ??= ReactiveCommand.Create(Update, this.WhenAnyValue(x => x.UpdateIsRunning, selector: x => !x));
+    public bool UpdateIsRunning { get; set; }
+
+    public void Update()
+    {
+        if (string.IsNullOrEmpty(_updaterPath) || !System.IO.File.Exists(_updaterPath))
+        {
+            return;
+        }
+        UpdateIsRunning = true;
+        this.RaisePropertyChanged(nameof(UpdateIsRunning));
+        try
+        {
+            Process.Start(_updaterPath);
+            Environment.Exit(0);
+        }
+        finally
+        {
+            UpdateIsRunning = false;
+            this.RaisePropertyChanged(nameof(UpdateIsRunning));
+        }
     }
     #endregion
 

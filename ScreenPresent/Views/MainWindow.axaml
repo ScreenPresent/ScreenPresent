@@ -16,7 +16,6 @@
 	x:DataType="viewmodels:MainViewModel">
 
 	<Window.Resources>
-		<!--<CollectionViewSource x:Key="PlayTypes" Source="{Binding PlayTypes}"/>-->
 		<converters:EnumDescriptionConverter x:Key="EnumDescriptionConverter" />
 	</Window.Resources>
 
@@ -208,36 +207,43 @@
 				<ColumnDefinition Width="auto" />
 				<ColumnDefinition Width="auto" />
 				<ColumnDefinition Width="auto" />
+				<ColumnDefinition Width="auto" />
 			</Grid.ColumnDefinitions>
 			<TextBlock Grid.Column="0"
+					   IsVisible="{Binding MayUpdate}"
+					   Foreground="Orange"
+					   Margin="5"
+					   Padding="10,5,10,5"
+					   Text="{Binding UpdateText}" />
+			<TextBlock Grid.Column="1"
 					   IsVisible="{Binding Settings.HasLibVlcError}"
 					   Foreground="Red"
 					   Margin="5"
 					   Padding="10,5,10,5"
 					   Text="Es können keine Videos angezeigt werden, da Lib-VLC nicht vorhanden ist." />
 			<Button
-                Grid.Column="1"
+                Grid.Column="2"
                 Margin="5"
                 Padding="10,5,10,5"
                 Content="Zurück"
                 Command="{Binding DiashowBackCommand}"
                 IsEnabled="{Binding CanDiashowBack}"/>
 			<Button
-                Grid.Column="2"
+                Grid.Column="3"
                 Margin="5"
                 Padding="10,5,10,5"
                 Content="Weiter"
                 Command="{Binding DiashowNextCommand}"
                 IsEnabled="{Binding CanDiashowNext}"/>
 			<Button
-                Grid.Column="3"
+                Grid.Column="4"
                 Margin="5"
                 Padding="10,5,10,5"
                 Content="{Binding DiashowPauseText}"
                 Command="{Binding DiashowPauseCommand}"
                 IsEnabled="{Binding CanDiashowPause}"/>
 			<Button
-                Grid.Column="4"
+                Grid.Column="5"
                 Margin="5"
                 Padding="10,5,10,5"
                 Content="Diashow einmal durchlaufen"
@@ -245,14 +251,14 @@
                 CommandParameter="False"
                 IsVisible="{Binding CanDiashowStart}"/>
 			<Button
-                Grid.Column="5"
+                Grid.Column="6"
                 Margin="5"
                 Padding="10,5,10,5"
                 Content="{Binding DiashowStartText}"
                 Command="{Binding DiashowStartCommand}"
                 CommandParameter="True" />
 			<Button
-                Grid.Column="6"
+                Grid.Column="7"
                 Margin="5"
                 Padding="10,5,10,5"
                 Content="Einstellungen"

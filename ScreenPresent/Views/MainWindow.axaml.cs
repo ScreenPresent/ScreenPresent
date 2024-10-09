@@ -27,7 +27,7 @@ public partial class MainWindow : Window
     public MainWindow(SettingsViewModel settings)
     {
         InitializeComponent();
-        Title = $"{Title} {ScreenPresent.Classes.Version.GetVersion()}";
+        Title = $"{Title} {ScreenPresent.Classes.Version.GetCurrentVersion()}";
 
         List<Screen> screens = Screens.All.ToList();
 
