@@ -41,6 +41,19 @@ public static class GlobalConfig
     {
         System.IO.File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration.json"), JsonSerializer.Serialize(JsonFile, JsonContext.Default.JsonFile));
     }
+
+    public static int GetBetween(int value, int start, int end)
+    {
+        if (value <= start)
+        {
+            return start;
+        }
+        if (value >= end)
+        {
+            return end;
+        }
+        return value;
+    }
 }
 
 public class JsonFile
@@ -238,19 +251,25 @@ public class Settings
     public int Width { get; set; } = 500;
     public bool TopMost { get; set; }
     public string? BannerPath { get; set; }
-    public int BannerSpeed { get; set; } = 20;
-    public int BannerTextSize { get; set; } = 20;
+    private int _bannerSpeed = 20;
+    public int BannerSpeed { get => GlobalConfig.GetBetween(_bannerSpeed, 1, 100); set => _bannerSpeed = value; }
+    private int _bannerTextSize = 20;
+    public int BannerTextSize { get => GlobalConfig.GetBetween(_bannerTextSize, 1, 100); set => _bannerTextSize = value; }
     public WeatherSettings WeatherApi { get; set; } = new();
-    public int VisibleDays { get; set; } = 5;
-    public int WeatherDuration { get; set; } = 10;
-    public int PlaceLetterSize { get; set; } = 15;
+    private int _visibleDays = 5;
+    public int VisibleDays { get => GlobalConfig.GetBetween(_visibleDays, 1, 5); set => _visibleDays = value; }
+    private int _weatherDuration = 10;
+    public int WeatherDuration { get => GlobalConfig.GetBetween(_weatherDuration, 10, 60); set => _weatherDuration = value; }
+    private int _placeLetterSize = 12;
+    public int PlaceLetterSize { get => GlobalConfig.GetBetween(_placeLetterSize, 10, 30); set => _placeLetterSize = value; }
     public bool FullScreen { get; set; }
     public bool StartDiashowAtProgramStart { get; set; }
 
     public bool ShowWeather { get; set; }
     public bool ShowNewsticker { get; set; }
     public bool OrderFoldersRandom { get; set; }
-    public int NewstickerFrames { get; set; } = 200;
+    private int _newstickerFrames = 200;
+    public int NewstickerFrames { get => GlobalConfig.GetBetween(_newstickerFrames, 100, 400); set => _newstickerFrames = value; }
     public string? SelectedMonitorName { get; set; }
 }
 

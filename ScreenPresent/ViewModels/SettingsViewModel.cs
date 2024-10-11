@@ -66,7 +66,7 @@ public class SettingsViewModel : ReactiveObject
         get => SelectedMonitore.Value.Bounds.Position;
     }
 
-    public string BannerFontSizeText => BannerFontSize == 0 || !ShowNewsticker ? "Banner nicht aktiv" : $"Schriftgröße: {BannerFontSize}";
+    public string BannerTextSizeText => BannerTextSize == 0 || !ShowNewsticker ? "Banner nicht aktiv" : $"Schriftgröße: {BannerTextSize}";
     #endregion
 
     public List<Theme> Themes { get; } = Enum.GetValues<Theme>().ToList();
@@ -133,7 +133,7 @@ public class SettingsViewModel : ReactiveObject
             this.RaisePropertyChanged();
         }
     }
-    public int BannerFontSize
+    public int BannerTextSize
     {
         get => GlobalConfig.JsonFile.Settings.BannerTextSize;
         set
@@ -141,7 +141,7 @@ public class SettingsViewModel : ReactiveObject
             GlobalConfig.JsonFile.Settings.BannerTextSize = value;
             RecreateNewsticker?.Invoke();
             this.RaisePropertyChanged();
-            this.RaisePropertyChanged(nameof(BannerFontSizeText));
+            this.RaisePropertyChanged(nameof(BannerTextSizeText));
         }
     }
 
@@ -250,7 +250,7 @@ public class SettingsViewModel : ReactiveObject
         {
             GlobalConfig.JsonFile.Settings.ShowNewsticker = value;
             this.RaisePropertyChanged();
-            this.RaisePropertyChanged(nameof(BannerFontSizeText));
+            this.RaisePropertyChanged(nameof(BannerTextSizeText));
             if (value)
             {
                 RecreateNewsticker?.Invoke();
@@ -300,13 +300,13 @@ public class SettingsViewModel : ReactiveObject
     #region smaller
     private ICommand? _newstickerSmallerCommand;
     [JsonIgnore]
-    public ICommand NewstickerSmallerCommand => _newstickerSmallerCommand ??= ReactiveCommand.Create(() => BannerFontSize--, this.WhenAnyValue(x => x.BannerFontSize, bannerFontSize => bannerFontSize > 1));
+    public ICommand NewstickerSmallerCommand => _newstickerSmallerCommand ??= ReactiveCommand.Create(() => BannerTextSize--, this.WhenAnyValue(x => x.BannerTextSize, BannerTextSize => BannerTextSize > 1));
     #endregion
 
     #region larger
     private ICommand? _newstickerLargerCommand;
     [JsonIgnore]
-    public ICommand NewstickerLargerCommand => _newstickerLargerCommand ??= ReactiveCommand.Create(() => BannerFontSize++, this.WhenAnyValue(x => x.BannerFontSize, bannerFontSize => bannerFontSize < 100));
+    public ICommand NewstickerLargerCommand => _newstickerLargerCommand ??= ReactiveCommand.Create(() => BannerTextSize++, this.WhenAnyValue(x => x.BannerTextSize, BannerTextSize => BannerTextSize < 100));
     #endregion
 
     #endregion
