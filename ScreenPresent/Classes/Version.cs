@@ -14,7 +14,15 @@ public static class Version
 {
     public static string? GetCurrentVersion()
     {
-        return FileVersionInfo.GetVersionInfo(Path.Combine(AppContext.BaseDirectory, "ScreenPresent.exe")).FileVersion;
+        if (System.IO.File.Exists(Path.Combine(AppContext.BaseDirectory, "ScreenPresent.exe")))
+        {
+            return FileVersionInfo.GetVersionInfo(Path.Combine(AppContext.BaseDirectory, "ScreenPresent.exe")).FileVersion;
+        }
+        else if (System.IO.File.Exists(Path.Combine(AppContext.BaseDirectory, "ScreenPresent")))
+        {
+            return FileVersionInfo.GetVersionInfo(Path.Combine(AppContext.BaseDirectory, "ScreenPresent")).FileVersion;
+        }
+        return null;
     }
 
     public static async Task<string?> GetNewestVersionStringAsync(CancellationToken cancellationToken = default)
