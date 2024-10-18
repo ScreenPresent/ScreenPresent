@@ -9,9 +9,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-	<SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
-	<PublishTrimmed>true</PublishTrimmed>
-	<TrimMode>link</TrimMode>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>link</TrimMode>
   </PropertyGroup>
 
   <ItemGroup>

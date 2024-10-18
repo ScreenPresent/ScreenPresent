@@ -127,7 +127,9 @@ public class MainViewModel : ReactiveObject
     {
         string? newestVersion = await Classes.Version.GetNewestVersionStringAsync();
 
-        if (!string.IsNullOrWhiteSpace(newestVersion) && newestVersion != Classes.Version.GetCurrentVersion())
+        string? currentVersion = Classes.Version.GetCurrentVersion();
+
+        if (!string.IsNullOrWhiteSpace(newestVersion) && !string.IsNullOrWhiteSpace(currentVersion) && newestVersion != currentVersion)
         {
             UpdateText = string.IsNullOrEmpty(newestVersion) ? null : $"Es ist ein Update auf Version {newestVersion} verfügbar.";
         }
