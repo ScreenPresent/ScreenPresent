@@ -21,15 +21,15 @@
 
   <ItemGroup>
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.3.0" />
-    <PackageReference Include="Avalonia" Version="11.2.0-rc1" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.0-rc1" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.2.0-rc1" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.0-rc1" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.0-rc1" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.0-rc1" />
+    <PackageReference Include="Avalonia" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.0" />
 	<!-- The next version contains an native overlay https://code.videolan.org/videolan/LibVLCSharp/-/commit/85e24c048b7fa2b2723b850280d29c624705e544#12fb2b2c4c28c5b9f47755378aed63f8648d2897_95_188-->
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.8.2" />
     <PackageReference Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$(Configuration)' == 'Debug'" Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
-   <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.0-rc1" />
+   <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.0" />
   </ItemGroup>
 </Project>
