@@ -23,12 +23,12 @@ public partial class ImageWindow : Window
 
     public void CreateBanner()
     {
+        SpBanner.Children.Clear();
         if (string.IsNullOrWhiteSpace(ViewModel.Text))
         {
             return;
         }
         ViewModel.BannerVisible = true;
-        SpBanner.Children.Clear();
         for (int i = 0; i < REPETITION_COUNT; i++)
         {
             TextBlock bannerText = new()

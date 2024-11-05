@@ -121,6 +121,44 @@ public class MainViewModel : ReactiveObject
         }
 
         CheckForUpdatesAsync();
+
+        Settings.PropertyChanged += Settings_PropertyChanged;
+        RecreateFileSystemWatcher();
+    }
+
+    private System.IO.FileSystemWatcher? _bannerPathWatcher = new();
+    private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Settings.BannerPath))
+        {
+            RecreateFileSystemWatcher();
+        }
+    }
+
+    private void RecreateFileSystemWatcher()
+    {
+        if (_bannerPathWatcher is not null)
+        {
+            _bannerPathWatcher.Changed -= _bannerPathWatcher_Changed;
+            _bannerPathWatcher.Dispose();
+        }
+        if (string.IsNullOrWhiteSpace(Settings.BannerPath) || !System.IO.Directory.Exists(Settings.BannerPath))
+        {
+            return;
+        }
+        _bannerPathWatcher = new()
+        {
+            Path = Settings.BannerPath,
+            EnableRaisingEvents = true,
+            Filter = "*.*",
+        };
+
+        _bannerPathWatcher.Changed += _bannerPathWatcher_Changed;
+    }
+
+    private void _bannerPathWatcher_Changed(object sender, System.IO.FileSystemEventArgs e)
+    {
+        Dispatcher.UIThread.Invoke(ImageWindow_RefreshText);
     }
 
     private async Task CheckForUpdatesAsync()
@@ -137,7 +175,7 @@ public class MainViewModel : ReactiveObject
 
     private void Settings_StopNewsticker()
     {
-        ImageWindow.StopNewsticker();
+        ImageWindow_RefreshText();
     }
 
     private void Settings_RecreateNewsticker()
@@ -155,11 +193,12 @@ public class MainViewModel : ReactiveObject
         set => this.RaiseAndSetIfChanged(ref _weatherDuration, value);
     }
 
-    // TODO Refresh sometimes
     private void ImageWindow_RefreshText()
     {
         if (string.IsNullOrWhiteSpace(Settings.BannerPath) || !System.IO.Directory.Exists(Settings.BannerPath))
         {
+            ImageWindow.ViewModel.Text = string.Empty;
+            ImageWindow.CreateBanner();
             return;
         }
         List<string> banner = new();
@@ -168,11 +207,20 @@ public class MainViewModel : ReactiveObject
             foreach (string file in System.IO.Directory.GetFiles(Settings.BannerPath)
                 .Where(f => !new System.IO.FileInfo(f).Attributes.HasFlag(System.IO.FileAttributes.Hidden)))
             {
-                banner.Add(string.Join(" +++ ", System.IO.File.ReadAllLines(file)));
+                banner.Add(string.Join(" +++ ", System.IO.File.ReadAllLines(file).Where(x => !string.IsNullOrWhiteSpace(x))));
             }
         }
         catch
         {
+            ImageWindow.ViewModel.Text = string.Empty;
+            ImageWindow.CreateBanner();
+            return;
+        }
+        banner = banner.Where(x => !string.IsNullOrEmpty(x)).ToList();
+        if (banner.Count == 0)
+        {
+            ImageWindow.ViewModel.Text = string.Empty;
+            ImageWindow.CreateBanner();
             return;
         }
         string text = $"{string.Join(" +++ ", banner)} +++".ToString();
