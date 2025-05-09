@@ -6,9 +6,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
+using Timer = System.Timers.Timer;
 
 namespace ScreenPresent.ViewModels;
 
@@ -202,20 +204,32 @@ public class MainViewModel : ReactiveObject
             return;
         }
         List<string> banner = new();
-        try
+        int tryCount = 0;
+        while (tryCount < 5)
         {
-            foreach (string file in System.IO.Directory.GetFiles(Settings.BannerPath)
-                .Where(f => !new System.IO.FileInfo(f).Attributes.HasFlag(System.IO.FileAttributes.Hidden)))
+            try
             {
-                banner.Add(string.Join(" +++ ", System.IO.File.ReadAllLines(file).Where(x => !string.IsNullOrWhiteSpace(x))));
+                foreach (string file in System.IO.Directory.GetFiles(Settings.BannerPath)
+                             .Where(f => !new System.IO.FileInfo(f).Attributes.HasFlag(System.IO.FileAttributes.Hidden)))
+                {
+                    banner.Add(string.Join(" +++ ", System.IO.File.ReadAllLines(file).Where(x => !string.IsNullOrWhiteSpace(x))));
+                }
+
+                break;
+            }
+            catch
+            {
+                tryCount++;
+                Thread.Sleep(500);
             }
         }
-        catch
+        if (tryCount == 5)
         {
             ImageWindow.ViewModel.Text = string.Empty;
             ImageWindow.CreateBanner();
             return;
         }
+       
         banner = banner.Where(x => !string.IsNullOrEmpty(x)).ToList();
         if (banner.Count == 0)
         {
