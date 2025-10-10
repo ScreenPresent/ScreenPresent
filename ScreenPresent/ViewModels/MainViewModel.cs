@@ -672,6 +672,7 @@ public class MainViewModel : ReactiveObject
         if (_waitForEnd)
         {
             _waitForEnd = false;
+            CurrentFile++;
             StartTimer(this, null);
         }
     }
