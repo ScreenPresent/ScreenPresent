@@ -12,11 +12,11 @@ using System.Threading;
 namespace ScreenPresent.Views;
 
 /// <summary>
-/// Interaction logic for EasyImageWindow.xaml
+/// Interaction logic for ImageWindow.xaml
 /// </summary>
 public partial class ImageWindow : Window
 {
-    private const double BannerPadding = 10.0; // Zusätzlicher Padding für den Banner-Text
+    private const double BannerPadding = 0;
     private const int REPETITION_COUNT = 2;
 
     public readonly ViewModels.ImageViewModel ViewModel;

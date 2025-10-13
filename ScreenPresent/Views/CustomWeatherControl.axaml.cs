@@ -3,7 +3,7 @@
 namespace ScreenPresent.Views;
 
 /// <summary>
-/// Interaction logic for CurrentWeatherControl.xaml
+/// Interaction logic for CustomWeatherControl.xaml
 /// </summary>
 public partial class CustomWeatherControl : UserControl
 {
