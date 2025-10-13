@@ -6,7 +6,7 @@
         xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
         xmlns:views="clr-namespace:ScreenPresent.Views"
         xmlns:converters="clr-namespace:ScreenPresent.Converters"
-		xmlns:viewmodels="using:ScreenPresent.ViewModels"
+        xmlns:viewmodels="using:ScreenPresent.ViewModels"
         mc:Ignorable="d"
         Background="Black"
         Topmost="{Binding Settings.TopMost}"
@@ -16,44 +16,42 @@
         Height="{Binding Settings.Height}"
         WindowState="{Binding Settings.WindowState}"
         CanResize="False"
-		ExtendClientAreaToDecorationsHint="True"
-		SystemDecorations="None"
-		x:DataType="viewmodels:ImageViewModel"
-		KeyDown="Window_KeyDown">
+        ExtendClientAreaToDecorationsHint="True"
+        SystemDecorations="None"
+        x:DataType="viewmodels:ImageViewModel"
+        KeyDown="Window_KeyDown">
 
-	<Window.Resources>
-		<converters:InverseBooleanConverter x:Key="InverseBool" />
-		<converters:HalfValueConverter x:Key="HalfValue" />
-		<converters:BoolToStretchConverter x:Key="BoolToStretch" />
-	</Window.Resources>
+    <Window.Resources>
+        <converters:BoolToStretchConverter x:Key="BoolToStretch" />
+    </Window.Resources>
 
-	<Grid RowDefinitions="*,Auto">
-		<Image
+    <Grid RowDefinitions="*,Auto">
+        <Image
             Name="ImageView"
             Grid.Row="0"
             Stretch="{Binding StretchFiles, Converter={StaticResource BoolToStretch}}"
             IsVisible="{Binding ShowImage}"
             Source="{Binding ImageSource}" />
 
-		<vlc:VideoView
+        <vlc:VideoView
             Name="VideoMediaElement"
             Grid.Row="0"
-			MediaPlayer="{Binding MediaPlayer}"
+            MediaPlayer="{Binding MediaPlayer}"
             HorizontalAlignment="{Binding StretchFiles, Converter={StaticResource BoolToStretch}}"
             VerticalAlignment="{Binding StretchFiles, Converter={StaticResource BoolToStretch}}"
-			IsVisible="{Binding ShowVideo}" />
+            IsVisible="{Binding ShowVideo}" />
 
-		<Viewbox
+        <Viewbox
             Grid.Row="0"
             Stretch="Uniform"
             IsVisible="{Binding ShowWeather}">
-			<views:CustomWeatherControl />
-		</Viewbox>
+            <views:CustomWeatherControl />
+        </Viewbox>
 
-		<StackPanel
-			Name="SpBanner"
+        <StackPanel
+            Name="SpBanner"
             Grid.Row="1"
-			Orientation="Horizontal"
-			IsVisible="{Binding BannerVisible}" />
-	</Grid>
+            Orientation="Horizontal"
+            IsVisible="{Binding BannerVisible}" />
+    </Grid>
 </Window>

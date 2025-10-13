@@ -3,14 +3,21 @@ using LibVLCSharp.Shared;
 using ReactiveUI;
 using ScreenPresent.Classes;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
+using MetadataExtractor;
+using MetadataExtractor.Formats.Exif;
+using ScreenPresent.Enums;
+using Directory = MetadataExtractor.Directory;
 
 namespace ScreenPresent.ViewModels;
 
 public class ImageViewModel : ReactiveObject
 {
     private LibVLC? _libVlc;
+
     public ImageViewModel(SettingsViewModel settings)
     {
         try
@@ -38,6 +45,7 @@ public class ImageViewModel : ReactiveObject
     public bool ShowImage => !ShowWeather && !ShowVideo;
 
     private bool _stretchImage;
+
     public bool StretchFiles
     {
         get => _stretchImage;
@@ -45,6 +53,7 @@ public class ImageViewModel : ReactiveObject
     }
 
     private Bitmap? _imageSource;
+
     public Bitmap? ImageSource
     {
         get => _imageSource;
@@ -54,6 +63,7 @@ public class ImageViewModel : ReactiveObject
     public MediaPlayer? MediaPlayer { get; }
 
     private bool _showVideo;
+
     public bool ShowVideo
     {
         get => !ShowWeather && _showVideo;
@@ -65,7 +75,12 @@ public class ImageViewModel : ReactiveObject
     }
 
     private bool _bannerVisible;
-    public bool BannerVisible { get => _bannerVisible; set => this.RaiseAndSetIfChanged(ref _bannerVisible, value); }
+
+    public bool BannerVisible
+    {
+        get => _bannerVisible;
+        set => this.RaiseAndSetIfChanged(ref _bannerVisible, value);
+    }
 
     public static string Repeat(string s, int n)
     {
@@ -73,6 +88,7 @@ public class ImageViewModel : ReactiveObject
     }
 
     private string _text = null!;
+
     public string Text
     {
         get => Repeat($"{_text} ", 20).Trim();
@@ -85,6 +101,7 @@ public class ImageViewModel : ReactiveObject
     }
 
     private int _textActualHeight;
+
     public int TextActualHeight
     {
         get => _textActualHeight;
@@ -92,6 +109,7 @@ public class ImageViewModel : ReactiveObject
     }
 
     private bool _showWeather = false;
+
     public bool ShowWeather
     {
         get => _showWeather;
@@ -114,19 +132,56 @@ public class ImageViewModel : ReactiveObject
                 using Media media = new(_libVlc, file.Filename);
                 MediaPlayer!.Play(media);
             }
+
             ShowVideo = true;
             return;
         }
+
         try
         {
             ShowVideo = false;
-            Bitmap image = new(file.Filename);
-            ImageSource = image;
+            ImageSource = LoadOrientation(new Bitmap(file.Filename), file.Filename);
         }
         catch (FileNotFoundException)
         {
             //The file has been deleted
         }
+        catch (ArgumentException)
+        {
+            Console.WriteLine("Unable to load the image: '" + file.Filename + "'.");
+        }
+    }
+
+    public Bitmap LoadOrientation(Bitmap bitmap, string filePath)
+    {
+        var directories = ImageMetadataReader.ReadMetadata(filePath);
+        var ifd0 = directories.OfType<ExifIfd0Directory>().FirstOrDefault();
+
+        if (ifd0 == null)
+        {
+            return bitmap.ApplyOrientation(ImageOrientation.Unknown);
+        }
+
+        // EXIF Tag ID 274 = Orientation
+        if (ifd0.TryGetInt32(ExifDirectoryBase.TagOrientation, out int orientationValue))
+        {
+            ImageOrientation imageOrientation = orientationValue switch
+            {
+                1 => ImageOrientation.Normal,
+                2 => ImageOrientation.MirrorHorizontal,
+                3 => ImageOrientation.Rotate180,
+                4 => ImageOrientation.MirrorVertical,
+                5 => ImageOrientation.MirrorHorizontalAndRotate270CW,
+                6 => ImageOrientation.Rotate90CW,
+                7 => ImageOrientation.MirrorHorizontalAndRotate90CW,
+                8 => ImageOrientation.Rotate270CW,
+                _ => ImageOrientation.Unknown
+            };
+            return bitmap.ApplyOrientation(imageOrientation);
+        }
+
+
+        return bitmap.ApplyOrientation(ImageOrientation.Unknown);
     }
 
     public void StopMediaIfIsPlaying()
@@ -138,9 +193,13 @@ public class ImageViewModel : ReactiveObject
     }
 
     private WeatherResult? _weather;
+
     public WeatherResult? Weather
     {
-        get => _weather == null ? null : new WeatherResult($"Wetter in {_weather.CityName}", _weather.DailyWeather.Take(Settings.VisibleDays).ToList());
+        get => _weather == null
+            ? null
+            : new WeatherResult($"Wetter in {_weather.CityName}",
+                _weather.DailyWeather.Take(Settings.VisibleDays).ToList());
         set => this.RaiseAndSetIfChanged(ref _weather, value);
     }
 
