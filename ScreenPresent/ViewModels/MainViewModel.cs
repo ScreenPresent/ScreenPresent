@@ -17,13 +17,20 @@ namespace ScreenPresent.ViewModels;
 public class MainViewModel : ReactiveObject
 {
     public List<DisplayPath> Paths { get; set; }
+
     public List<DisplayPath> DisplayPaths
     {
-        get => Paths.FindAll(path => path.Name?.Contains(SearchText ?? string.Empty, StringComparison.OrdinalIgnoreCase) ?? false);
-        set => Paths = value;
+        get => Paths.FindAll(path =>
+            path.Name?.Contains(SearchText ?? string.Empty, StringComparison.OrdinalIgnoreCase) ?? false);
+        set
+        {
+            Paths = value;
+            GlobalConfig.JsonFile.Paths = value;
+        }
     }
 
     private string? _updateText;
+
     public string? UpdateText
     {
         get => _updateText;
@@ -37,12 +44,14 @@ public class MainViewModel : ReactiveObject
             }
         }
     }
+
     public bool MayUpdate => !string.IsNullOrEmpty(UpdateText);
 
     public Views.ImageWindow ImageWindow { get; set; }
     public SettingsViewModel Settings { get; set; }
 
     private DisplayPath? _selectedPath;
+
     public DisplayPath? SelectedPath
     {
         get => _selectedPath;
@@ -58,8 +67,9 @@ public class MainViewModel : ReactiveObject
         }
     }
 
-    private string _searchText = null!;
-    public string SearchText
+    private string? _searchText;
+
+    public string? SearchText
     {
         get => _searchText;
         set
@@ -74,6 +84,7 @@ public class MainViewModel : ReactiveObject
     }
 
     private DateTime? _loadedDate;
+
     public async void LoadWeather()
     {
         try
@@ -83,10 +94,13 @@ public class MainViewModel : ReactiveObject
                 ImageWindow.ViewModel.Weather = null;
                 return;
             }
-            if (ImageWindow.ViewModel.Weather == null || !_loadedDate.HasValue || _loadedDate.Value <= DateTime.Now.AddHours(-1))
+
+            if (ImageWindow.ViewModel.Weather == null || !_loadedDate.HasValue ||
+                _loadedDate.Value <= DateTime.Now.AddHours(-1))
             {
                 OpenWeatherMapService openWeatherMapService = new();
-                ImageWindow.ViewModel.Weather = await openWeatherMapService.GetForecastAsync(Settings.WeatherApiKey, Settings.WeatherLocation);
+                ImageWindow.ViewModel.Weather =
+                    await openWeatherMapService.GetForecastAsync(Settings.WeatherApiKey, Settings.WeatherLocation);
                 _loadedDate = DateTime.Now;
             }
         }
@@ -98,6 +112,7 @@ public class MainViewModel : ReactiveObject
 
     private readonly System.Timers.Timer NextImageTimer = new(1000);
     private readonly string? _updaterPath;
+
     public MainViewModel(SettingsViewModel settings)
     {
         NextImageTimer.Elapsed += StartTimer;
@@ -129,6 +144,7 @@ public class MainViewModel : ReactiveObject
     }
 
     private System.IO.FileSystemWatcher? _bannerPathWatcher = new();
+
     private void Settings_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (e.PropertyName == nameof(Settings.BannerPath))
@@ -144,10 +160,12 @@ public class MainViewModel : ReactiveObject
             _bannerPathWatcher.Changed -= _bannerPathWatcher_Changed;
             _bannerPathWatcher.Dispose();
         }
+
         if (string.IsNullOrWhiteSpace(Settings.BannerPath) || !System.IO.Directory.Exists(Settings.BannerPath))
         {
             return;
         }
+
         _bannerPathWatcher = new()
         {
             Path = Settings.BannerPath,
@@ -169,9 +187,12 @@ public class MainViewModel : ReactiveObject
 
         string? currentVersion = Classes.Version.GetCurrentVersion();
 
-        if (!string.IsNullOrWhiteSpace(newestVersion) && !string.IsNullOrWhiteSpace(currentVersion) && newestVersion != currentVersion)
+        if (!string.IsNullOrWhiteSpace(newestVersion) && !string.IsNullOrWhiteSpace(currentVersion) &&
+            newestVersion != currentVersion)
         {
-            UpdateText = string.IsNullOrEmpty(newestVersion) ? null : $"Es ist ein Update auf Version {newestVersion} verfügbar.";
+            UpdateText = string.IsNullOrEmpty(newestVersion)
+                ? null
+                : $"Es ist ein Update auf Version {newestVersion} verfügbar.";
         }
     }
 
@@ -189,6 +210,7 @@ public class MainViewModel : ReactiveObject
     }
 
     private int _weatherDuration;
+
     public int WeatherDuration
     {
         get => _weatherDuration;
@@ -203,6 +225,7 @@ public class MainViewModel : ReactiveObject
             ImageWindow.CreateBanner();
             return;
         }
+
         List<string> banner = new();
         int tryCount = 0;
         while (tryCount < 5)
@@ -210,9 +233,11 @@ public class MainViewModel : ReactiveObject
             try
             {
                 foreach (string file in System.IO.Directory.GetFiles(Settings.BannerPath)
-                             .Where(f => !new System.IO.FileInfo(f).Attributes.HasFlag(System.IO.FileAttributes.Hidden)))
+                             .Where(f =>
+                                 !new System.IO.FileInfo(f).Attributes.HasFlag(System.IO.FileAttributes.Hidden)))
                 {
-                    banner.Add(string.Join(" +++ ", System.IO.File.ReadAllLines(file).Where(x => !string.IsNullOrWhiteSpace(x))));
+                    banner.Add(string.Join(" +++ ",
+                        System.IO.File.ReadAllLines(file).Where(x => !string.IsNullOrWhiteSpace(x))));
                 }
 
                 break;
@@ -223,13 +248,14 @@ public class MainViewModel : ReactiveObject
                 Thread.Sleep(500);
             }
         }
+
         if (tryCount == 5)
         {
             ImageWindow.ViewModel.Text = string.Empty;
             ImageWindow.CreateBanner();
             return;
         }
-       
+
         banner = banner.Where(x => !string.IsNullOrEmpty(x)).ToList();
         if (banner.Count == 0)
         {
@@ -237,6 +263,7 @@ public class MainViewModel : ReactiveObject
             ImageWindow.CreateBanner();
             return;
         }
+
         string text = $"{string.Join(" +++ ", banner)} +++".ToString();
         if (text != ImageWindow.ViewModel.GetText())
         {
@@ -259,16 +286,19 @@ public class MainViewModel : ReactiveObject
 
         if (Settings.ShowWeather && Settings.ShowOnlyWeather)
         {
-            _files = new List<File>() {
-                 new File(Constant.ConstantWeatherId.ToString()) {
-                     Duration  = Settings.WeatherDuration
-                  }
+            _files = new List<File>()
+            {
+                new File(Constant.ConstantWeatherId.ToString())
+                {
+                    Duration = Settings.WeatherDuration
+                }
             };
             return true;
         }
 
         // load all paths, that should be displayd now and that exists
-        IEnumerable<DisplayPath> paths = Paths.Where(x => x.IsInTime(DateTime.Now) && System.IO.Directory.Exists(x.Directory));
+        IEnumerable<DisplayPath> paths =
+            Paths.Where(x => x.IsInTime(DateTime.Now) && System.IO.Directory.Exists(x.Directory));
 
         if (Settings.OrderFoldersRandom)
         {
@@ -294,11 +324,13 @@ public class MainViewModel : ReactiveObject
                 });
             }
         }
+
         return _files.Any() && DiashowIsRunning;
     }
 
     private List<File> _files = [];
     private int _currentFile = 0;
+
     public int CurrentFile
     {
         get => _currentFile;
@@ -317,13 +349,15 @@ public class MainViewModel : ReactiveObject
     {
         if (!DiashowIsRunning)
         {
-            return true;// should be false, but the next file should not be displayed
+            return true; // should be false, but the next file should not be displayed
         }
+
         File file = _files[CurrentFile];
         if (file.Filename == Constant.ConstantWeatherId.ToString())
         {
             return ShowWeather();
         }
+
         ImageWindow.ViewModel.ShowWeather = false;
         if (!System.IO.File.Exists(file.Filename))
         {
@@ -331,6 +365,7 @@ public class MainViewModel : ReactiveObject
             CurrentFile--;
             return false;
         }
+
         ImageWindow.ViewModel.SetImage(file);
         return true;
     }
@@ -343,6 +378,7 @@ public class MainViewModel : ReactiveObject
             ImageWindow.ViewModel.ShowWeather = true;
             return true;
         }
+
         return false;
     }
 
@@ -351,8 +387,10 @@ public class MainViewModel : ReactiveObject
     #region paths
 
     #region add path
+
     private ICommand? _addPathCommand;
     public ICommand AddPathCommand => _addPathCommand ??= ReactiveCommand.Create(AddPath);
+
     public void AddPath()
     {
         Paths.Add(new DisplayPath()
@@ -361,11 +399,16 @@ public class MainViewModel : ReactiveObject
         });
         this.RaisePropertyChanged(nameof(DisplayPaths));
     }
+
     #endregion
 
     #region remove path
+
     private ICommand? _removePathCommand;
-    public ICommand RemovePathCommand => _removePathCommand ??= ReactiveCommand.Create(RemovePath, this.WhenAnyValue(x => x.SelectedPath, selector: (selectedPath) => selectedPath != null));
+
+    public ICommand RemovePathCommand => _removePathCommand ??= ReactiveCommand.Create(RemovePath,
+        this.WhenAnyValue(x => x.SelectedPath, selector: (selectedPath) => selectedPath != null));
+
     public void RemovePath()
     {
         ArgumentNullException.ThrowIfNull(SelectedPath);
@@ -373,27 +416,39 @@ public class MainViewModel : ReactiveObject
         Paths.Remove(SelectedPath);
         this.RaisePropertyChanged(nameof(DisplayPaths));
     }
+
     #endregion
 
     #region path up
+
     private ICommand? _pathUpCommand;
-    public ICommand PathUpCommand => _pathUpCommand ??= ReactiveCommand.Create(PathUp, this.WhenAnyValue(x => x.CanPathUpExecute, selector: (canPathUpExecute) => canPathUpExecute));
+
+    public ICommand PathUpCommand => _pathUpCommand ??= ReactiveCommand.Create(PathUp,
+        this.WhenAnyValue(x => x.CanPathUpExecute, selector: (canPathUpExecute) => canPathUpExecute));
+
     public bool CanPathUpExecute => SelectedPath != null && SelectedPath != Paths.FirstOrDefault();
+
     public void PathUp()
     {
         MovePath(-1);
     }
+
     #endregion
 
     #region path down
+
     private ICommand? _pathDownCommand;
-    public ICommand PathDownCommand => _pathDownCommand ??= ReactiveCommand.Create(PathDown, this.WhenAnyValue(x => x.CanPathDownExecute, selector: (canPathDownExecute) => canPathDownExecute));
+
+    public ICommand PathDownCommand => _pathDownCommand ??= ReactiveCommand.Create(PathDown,
+        this.WhenAnyValue(x => x.CanPathDownExecute, selector: (canPathDownExecute) => canPathDownExecute));
+
     public bool CanPathDownExecute => SelectedPath != null && SelectedPath != Paths.LastOrDefault();
 
     public void PathDown()
     {
         MovePath(1);
     }
+
     #endregion
 
     private void MovePath(int indexChange)
@@ -412,13 +467,18 @@ public class MainViewModel : ReactiveObject
     #endregion
 
     #region Diashow
+
     #region Start
+
     private ICommand? _DiashowStartCommand;
-    public ICommand DiashowStartCommand => _DiashowStartCommand ??= ReactiveCommand.Create(new Action<string>((x) => StartPresentation(bool.Parse(x))));
+
+    public ICommand DiashowStartCommand => _DiashowStartCommand ??=
+        ReactiveCommand.Create(new Action<string>((x) => StartPresentation(bool.Parse(x))));
 
     public bool CanDiashowStart => !DiashowIsRunning;
     public string DiashowStartText => DiashowIsRunning ? "Stop" : "Start";
     private bool _diashowIsRunning;
+
     public bool DiashowIsRunning
     {
         get => _diashowIsRunning;
@@ -433,11 +493,16 @@ public class MainViewModel : ReactiveObject
             this.RaisePropertyChanged(nameof(CanDiashowBack));
         }
     }
+
     #endregion
 
     #region Next
+
     private ICommand? _diashowNextCommand;
-    public ICommand DiashowNextCommand => _diashowNextCommand ??= ReactiveCommand.Create(DiashowNext, this.WhenAnyValue(x => x.CanDiashowNext, selector: canDiashowNext => canDiashowNext));
+
+    public ICommand DiashowNextCommand => _diashowNextCommand ??= ReactiveCommand.Create(DiashowNext,
+        this.WhenAnyValue(x => x.CanDiashowNext, selector: canDiashowNext => canDiashowNext));
+
     public bool CanDiashowNext => DiashowIsRunning && CurrentFile < _files?.Count;
 
     public void DiashowNext()
@@ -445,11 +510,16 @@ public class MainViewModel : ReactiveObject
         NextImageTimer.Stop();
         StartTimer(this, null);
     }
+
     #endregion
 
     #region Back
+
     private ICommand? _diashowBackCommand;
-    public ICommand DiashowBackCommand => _diashowBackCommand ??= ReactiveCommand.Create(DiashowBack, this.WhenAnyValue(x => x.CanDiashowBack, selector: canDiashowBack => canDiashowBack));
+
+    public ICommand DiashowBackCommand => _diashowBackCommand ??= ReactiveCommand.Create(DiashowBack,
+        this.WhenAnyValue(x => x.CanDiashowBack, selector: canDiashowBack => canDiashowBack));
+
     public bool CanDiashowBack => DiashowIsRunning && CurrentFile > 1;
 
     public void DiashowBack()
@@ -458,15 +528,21 @@ public class MainViewModel : ReactiveObject
         CurrentFile -= 2;
         StartTimer(this, null);
     }
+
     #endregion
 
     #region Pause
+
     private ICommand? _diashowPauseCommand;
-    public ICommand DiashowPauseCommand => _diashowPauseCommand ??= ReactiveCommand.Create(() => DiashowPause(), this.WhenAnyValue(x => x.CanDiashowPause, selector: canDiashowPause => canDiashowPause));
+
+    public ICommand DiashowPauseCommand => _diashowPauseCommand ??= ReactiveCommand.Create(() => DiashowPause(),
+        this.WhenAnyValue(x => x.CanDiashowPause, selector: canDiashowPause => canDiashowPause));
+
     public bool CanDiashowPause => DiashowIsRunning;
 
     public string DiashowPauseText => DiashowPaused ? "Fortsetzen" : "Pause";
     private bool _diashowPaused = false;
+
     public bool DiashowPaused
     {
         get => _diashowPaused;
@@ -487,13 +563,19 @@ public class MainViewModel : ReactiveObject
         {
             NextImageTimer.Stop();
         }
+
         DiashowPaused = !DiashowPaused;
     }
+
     #endregion
 
     #region Update
+
     private ICommand? _updateCommand;
-    public ICommand UpdateCommand => _updateCommand ??= ReactiveCommand.Create(Update, this.WhenAnyValue(x => x.UpdateIsRunning, selector: x => !x));
+
+    public ICommand UpdateCommand => _updateCommand ??=
+        ReactiveCommand.Create(Update, this.WhenAnyValue(x => x.UpdateIsRunning, selector: x => !x));
+
     public bool UpdateIsRunning { get; set; }
 
     public void Update()
@@ -502,6 +584,7 @@ public class MainViewModel : ReactiveObject
         {
             return;
         }
+
         UpdateIsRunning = true;
         this.RaisePropertyChanged(nameof(UpdateIsRunning));
         try
@@ -515,12 +598,15 @@ public class MainViewModel : ReactiveObject
             this.RaisePropertyChanged(nameof(UpdateIsRunning));
         }
     }
-    #endregion
 
     #endregion
 
     #endregion
+
+    #endregion
+
     private bool _keepRunning;
+
     /// <summary>
     /// If the newsticker should be active, this will start the newsticker. Starts the diashow.
     /// </summary>
@@ -551,12 +637,14 @@ public class MainViewModel : ReactiveObject
 
     private readonly Timer LoadFilesTimer = new(2000);
     private bool _loadFiles = false;
+
     private void LoadAndDisplayFiles(object? sender, ElapsedEventArgs e)
     {
         if (_loadFiles)
         {
             return;
         }
+
         _loadFiles = true;
         LoadAndDisplayFiles();
         _loadFiles = false;
@@ -577,12 +665,14 @@ public class MainViewModel : ReactiveObject
     }
 
     private bool isRunning;
+
     private void StartTimer(object? sender, ElapsedEventArgs? e)
     {
         if (isRunning)
         {
             return;
         }
+
         isRunning = true;
         if (_files.Count <= CurrentFile)
         {
@@ -594,15 +684,18 @@ public class MainViewModel : ReactiveObject
                 ImageWindow.ViewModel.StopMediaIfIsPlaying();
                 return;
             }
+
             NextImageTimer.Stop();
             isRunning = false;
             LoadFilesTimer.Start();
             return;
         }
+
         NextImageTimer.Stop();
         // Naechste Datei auswaehlen.
         File file = _files[CurrentFile];
-        if (file.Filename == Constant.ConstantWeatherId.ToString() && Settings.ShowWeather && Settings.ShowOnlyWeather && file.Duration == 0)
+        if (file.Filename == Constant.ConstantWeatherId.ToString() && Settings.ShowWeather &&
+            Settings.ShowOnlyWeather && file.Duration == 0)
         {
             // Falls das Weter angezeigt wird und dort keine Zeit hinterlegt ist, 10 Sekunden nehmen.
             file.Duration = 10;
@@ -617,6 +710,7 @@ public class MainViewModel : ReactiveObject
             NextImageTimer.Start();
             return;
         }
+
         if (file.Duration <= 0)
         {
             // Falls keine Zeit eingetragen ist, direkt zur naechsten Datei gehen.
@@ -629,11 +723,11 @@ public class MainViewModel : ReactiveObject
         // if the current file is not a prio file, check if there is any prio file.
         // if yes, stop showing current run.
         bool anyPrioFile = !file.IsPrio
-            && Paths.Where(x => x.HasPrio
-                && x.IsInTime(DateTime.Now)
-                && System.IO.Directory.Exists(x.Directory))
-            .SelectMany(x => x.GetFiles())
-            .Any();
+                           && Paths.Where(x => x.HasPrio
+                                               && x.IsInTime(DateTime.Now)
+                                               && System.IO.Directory.Exists(x.Directory))
+                               .SelectMany(x => x.GetFiles())
+                               .Any();
         if (anyPrioFile)
         {
             CurrentFile = _files.Count;
@@ -651,6 +745,7 @@ public class MainViewModel : ReactiveObject
             StartTimer(sender, e);
             return;
         }
+
         if (!file.IsVideo || !file.ShowFullLength)
         {
             // Falls kein Video in voller Laenge angezeigt werden soll.
@@ -662,11 +757,13 @@ public class MainViewModel : ReactiveObject
             // Falls ein Video in voller Laenge angezeigt werden soll, Wait For End setzen.
             _waitForEnd = true;
         }
+
         CurrentFile++;
         isRunning = false;
     }
 
     private bool _waitForEnd;
+
     private void ImageWindow_MediaEnded()
     {
         if (_waitForEnd)
