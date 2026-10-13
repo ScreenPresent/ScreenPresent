@@ -8,6 +8,7 @@ using ScreenPresent.Classes;
 using System;
 using System.Linq;
 using System.Threading;
+using Avalonia.VisualTree;
 
 namespace ScreenPresent.Views;
 
@@ -88,7 +89,7 @@ public partial class ImageWindow : Window
     {
         InitializeComponent();
         DataContext = ViewModel = new ViewModels.ImageViewModel(settings);
-
+        
         // Subcribe to position changes, this is because we can't bind the position.
         this.Position = ViewModel.Settings.Position;
         ViewModel.Settings.ObservableForProperty(x => x.Position).Subscribe(x =>
@@ -114,12 +115,6 @@ public partial class ImageWindow : Window
                 this.Height = screen.Bounds.Height;
             }
         }
-    }
-
-    internal void StopNewsticker()
-    {
-        ViewModel.BannerVisible = false;
-        SpBanner.Children.Clear();
     }
 
     public Action? CloseWindow { get; set; }

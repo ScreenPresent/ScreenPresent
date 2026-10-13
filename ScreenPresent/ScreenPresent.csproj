@@ -20,17 +20,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.4.3" />
-    <PackageReference Include="Avalonia" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.9" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.9" />
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="4.0.0" />
+    <PackageReference Include="Avalonia" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.4" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.8" />
 	<!-- The next version contains an native overlay https://code.videolan.org/videolan/LibVLCSharp/-/commit/85e24c048b7fa2b2723b850280d29c624705e544#12fb2b2c4c28c5b9f47755378aed63f8648d2897_95_188-->
-    <PackageReference Include="LibVLCSharp.Avalonia" Version="3.8.2" />
-    <PackageReference Include="MetadataExtractor" Version="2.9.0" />
-    <PackageReference Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$(Configuration)' == 'Debug'" Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
-   <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.9" />
+    <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.4" />
+    <PackageReference Include="MetadataExtractor" Version="2.9.3" />
+    <PackageReference Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$(Configuration)' == 'Debug'" Include="VideoLAN.LibVLC.Windows" Version="3.0.24" />
+   <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.22" />
   </ItemGroup>
 </Project>
